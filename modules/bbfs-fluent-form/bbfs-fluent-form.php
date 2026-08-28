@@ -502,6 +502,38 @@ FLBuilder::register_module(
 						),
 					),
 				),
+				'address_block'          => array(
+					'title'     => __( 'Address Block', 'bb-form-styler' ),
+					'collapsed' => true,
+					'fields'    => array(
+						'address_block_padding'       => array(
+							'type'       => 'unit',
+							'label'      => __( 'Padding', 'bb-form-styler' ),
+							'slider'     => true,
+							'units'      => array( 'px' ),
+							'responsive' => true,
+							'preview'    => array(
+								'type'     => 'css',
+								'selector' => '.bbfs-fluent-form-content .ff-el-form-group[data-type="address"]',
+								'property' => 'padding',
+								'unit'     => 'px',
+							),
+						),
+						'address_block_margin_bottom' => array(
+							'type'       => 'unit',
+							'label'      => __( 'Margin Bottom', 'bb-form-styler' ),
+							'slider'     => true,
+							'units'      => array( 'px' ),
+							'responsive' => true,
+							'preview'    => array(
+								'type'     => 'css',
+								'selector' => '.bbfs-fluent-form-content .ff-el-form-group[data-type="address"]',
+								'property' => 'margin-bottom',
+								'unit'     => 'px',
+							),
+						),
+					),
+				),
 				'placeholder_style'      => array( // Section
 					'title'         => __( 'Placeholder', 'bb-form-styler' ), // Section Title
 					'collapsed'		=> true,
@@ -1011,42 +1043,6 @@ FLBuilder::register_module(
 							'preview'          => array(
 								'type'         		=> 'css',
 								'selector' 		    => '.bbfs-fluent-form-content .ff-message-success',
-							),
-						),
-					),
-				),
-			),
-		),
-		'address_style'   => array(
-			'title'    => __( 'Address Block', 'bb-form-styler' ),
-			'sections' => array(
-				'address_spacing' => array(
-					'title'  => __( 'Spacing', 'bb-form-styler' ),
-					'fields' => array(
-						'address_block_padding' => array(
-							'type'       => 'dimension',
-							'label'      => __( 'Padding', 'bb-form-styler' ),
-							'slider'     => true,
-							'units'      => array( 'px' ),
-							'responsive' => true,
-							'preview'    => array(
-								'type'     => 'css',
-								'selector' => '.bbfs-fluent-form-content .ff-el-form-group[data-type="address"]',
-								'property' => 'padding',
-								'unit'     => 'px',
-							),
-						),
-						'address_block_margin' => array(
-							'type'       => 'dimension',
-							'label'      => __( 'Margin', 'bb-form-styler' ),
-							'slider'     => true,
-							'units'      => array( 'px' ),
-							'responsive' => true,
-							'preview'    => array(
-								'type'     => 'css',
-								'selector' => '.bbfs-fluent-form-content .ff-el-form-group[data-type="address"]',
-								'property' => 'margin',
-								'unit'     => 'px',
 							),
 						),
 					),

@@ -7,8 +7,8 @@ A lean Beaver Builder add-on that provides styling modules for **Gravity Forms**
 - Standalone Gravity Forms and Fluent Forms styling modules.
 - No third-party add-on dependencies — Beaver Builder core field types only.
 - Vanilla JavaScript module settings helpers. No jQuery, no framework, no build step.
-- Conditional **Address Block** tab that appears only when the selected form contains an address field.
-- Padding and margin controls for the address block.
+- Conditional **Address Block** section inside the Inputs tab that appears only when the selected form contains an address field.
+- Padding and margin-bottom controls for the address block.
 - No editor AJAX: form data is rendered into the builder by PHP, so the settings panel makes no requests of its own.
 
 ## Requirements
@@ -30,9 +30,9 @@ A lean Beaver Builder add-on that provides styling modules for **Gravity Forms**
 
 ## Address Block
 
-When you select a form that contains an address field, an **Address Block** tab appears in the module settings. Use it to set padding and margin around the address field group.
+When you select a form that contains an address field, an **Address Block** section appears inside the **Inputs** tab of the module settings. Use it to set padding and margin-bottom on the address field group.
 
-Presence of an address field is determined server-side when the builder loads and handed to the editor as `window.BBFSData`. The settings helper reads that table directly, so switching forms toggles the tab with no network round-trip.
+Presence of an address field is determined server-side when the builder loads and handed to the editor as `window.BBFSData`. The settings helper reads that table directly, so switching forms toggles the section with no network round-trip.
 
 ## Troubleshooting
 

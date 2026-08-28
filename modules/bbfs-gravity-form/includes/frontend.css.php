@@ -725,34 +725,24 @@ if ( isset( $settings->message_typography ) && ! empty( $settings->message_typog
 
 <?php
 // Address Block - Padding
-FLBuilderCSS::dimension_field_rule(
+FLBuilderCSS::responsive_rule(
 	array(
 		'settings'     => $settings,
 		'setting_name' => 'address_block_padding',
 		'selector'     => ".fl-node-$id .bbfs-gravity-form-content .gform_wrapper .gfield.gfield--type-address, .fl-node-$id .bbfs-gravity-form-content .gform_wrapper .gfield.address",
+		'prop'         => 'padding',
 		'unit'         => 'px',
-		'props'        => array(
-			'padding-top'    => 'address_block_padding_top',
-			'padding-right'  => 'address_block_padding_right',
-			'padding-bottom' => 'address_block_padding_bottom',
-			'padding-left'   => 'address_block_padding_left',
-		),
 	)
 );
 
-// Address Block - Margin
-FLBuilderCSS::dimension_field_rule(
+// Address Block - Margin Bottom
+FLBuilderCSS::responsive_rule(
 	array(
 		'settings'     => $settings,
-		'setting_name' => 'address_block_margin',
+		'setting_name' => 'address_block_margin_bottom',
 		'selector'     => ".fl-node-$id .bbfs-gravity-form-content .gform_wrapper .gfield.gfield--type-address, .fl-node-$id .bbfs-gravity-form-content .gform_wrapper .gfield.address",
+		'prop'         => 'margin-bottom',
 		'unit'         => 'px',
-		'props'        => array(
-			'margin-top'    => 'address_block_margin_top',
-			'margin-right'  => 'address_block_margin_right',
-			'margin-bottom' => 'address_block_margin_bottom',
-			'margin-left'   => 'address_block_margin_left',
-		),
 	)
 );
 ?>

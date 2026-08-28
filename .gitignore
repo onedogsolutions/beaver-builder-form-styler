@@ -48,3 +48,6 @@ wp-config.php
 #/wp-content/themes
 # macOS
 .DS_Store
+
+# Distribution archives
+beaver-builder-form-styler.zip

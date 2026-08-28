@@ -482,30 +482,20 @@
 
 <?php
 // Address Block - Padding
-FLBuilderCSS::dimension_field_rule( array(
+FLBuilderCSS::responsive_rule( array(
 	'settings'     => $settings,
 	'setting_name' => 'address_block_padding',
 	'selector'     => ".fl-node-$id .bbfs-fluent-form-content .ff-el-form-group[data-type=\"address\"]",
+	'prop'         => 'padding',
 	'unit'         => 'px',
-	'props'        => array(
-		'padding-top'    => 'address_block_padding_top',
-		'padding-right'  => 'address_block_padding_right',
-		'padding-bottom' => 'address_block_padding_bottom',
-		'padding-left'   => 'address_block_padding_left',
-	),
 ) );
 
-// Address Block - Margin
-FLBuilderCSS::dimension_field_rule( array(
+// Address Block - Margin Bottom
+FLBuilderCSS::responsive_rule( array(
 	'settings'     => $settings,
-	'setting_name' => 'address_block_margin',
+	'setting_name' => 'address_block_margin_bottom',
 	'selector'     => ".fl-node-$id .bbfs-fluent-form-content .ff-el-form-group[data-type=\"address\"]",
+	'prop'         => 'margin-bottom',
 	'unit'         => 'px',
-	'props'        => array(
-		'margin-top'    => 'address_block_margin_top',
-		'margin-right'  => 'address_block_margin_right',
-		'margin-bottom' => 'address_block_margin_bottom',
-		'margin-left'   => 'address_block_margin_left',
-	),
 ) );
 ?>

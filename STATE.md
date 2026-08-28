@@ -6,6 +6,15 @@
 
 ## Unreleased
 
+**Moved Address Block styling into the Inputs tab.**
+
+The Address Block tab has been removed from both the Gravity Form and Fluent Form modules. Its padding and margin controls now live as a collapsible **Address Block** section inside the **Inputs** tab, using single-value unit fields for Padding and Margin Bottom. The section remains hidden unless the selected form contains an address field.
+
+- Removed the `address_style` tab from `modules/bbfs-gravity-form/bbfs-gravity-form.php` and `modules/bbfs-fluent-form/bbfs-fluent-form.php`.
+- Added an `address_block` section with `address_block_padding` and `address_block_margin_bottom` unit fields to each module's Inputs tab.
+- Replaced `dimension_field_rule()` output with `responsive_rule()` output in both modules' `frontend.css.php` files.
+- Updated both `settings.js` helpers to toggle the `#fl-builder-settings-section-address_block` section instead of the removed tab.
+
 **Removed the Gravity Forms AJAX toggle.**
 
 The Gravity Forms module still exposed an **Enable AJAX** setting that passed an `ajax` attribute into the `[gravityform]` shortcode. Since the plugin should not use AJAX anywhere, the setting and shortcode output have been removed.
@@ -98,7 +107,7 @@ The settings helpers called `window.ajaxurl`, which Beaver Builder does not defi
 
 ### Not verified
 
-No WordPress runtime was available in the build environment, so all verification is static. The content panel, the settings forms and the Address Block tab still need confirmation in a live Beaver Builder install.
+No WordPress runtime was available in the build environment, so all verification is static. The content panel, the settings forms and the Address Block section still need confirmation in a live Beaver Builder install.
 
 ---
 

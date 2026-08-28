@@ -420,6 +420,38 @@ FLBuilder::register_module(
 						),
 					),
 				),
+				'address_block'     => array(
+					'title'     => __( 'Address Block', 'bb-form-styler' ),
+					'collapsed' => true,
+					'fields'    => array(
+						'address_block_padding'       => array(
+							'type'       => 'unit',
+							'label'      => __( 'Padding', 'bb-form-styler' ),
+							'slider'     => true,
+							'units'      => array( 'px' ),
+							'responsive' => true,
+							'preview'    => array(
+								'type'     => 'css',
+								'selector' => '.gform_wrapper .gfield.gfield--type-address, .gform_wrapper .gfield.address',
+								'property' => 'padding',
+								'unit'     => 'px',
+							),
+						),
+						'address_block_margin_bottom' => array(
+							'type'       => 'unit',
+							'label'      => __( 'Margin Bottom', 'bb-form-styler' ),
+							'slider'     => true,
+							'units'      => array( 'px' ),
+							'responsive' => true,
+							'preview'    => array(
+								'type'     => 'css',
+								'selector' => '.gform_wrapper .gfield.gfield--type-address, .gform_wrapper .gfield.address',
+								'property' => 'margin-bottom',
+								'unit'     => 'px',
+							),
+						),
+					),
+				),
 				'input_background'  => array(
 					'title'  => __( 'Colors', 'bb-form-styler' ),
 					'collapsed' => true,
@@ -1259,42 +1291,6 @@ FLBuilder::register_module(
 								'type'     => 'css',
 								'selector' => '.gform_wrapper .validation_error',
 								'property' => 'font-size',
-								'unit'     => 'px',
-							),
-						),
-					),
-				),
-			),
-		),
-		'address_style'     => array(
-			'title'    => __( 'Address Block', 'bb-form-styler' ),
-			'sections' => array(
-				'address_spacing' => array(
-					'title'  => __( 'Spacing', 'bb-form-styler' ),
-					'fields' => array(
-						'address_block_padding' => array(
-							'type'       => 'dimension',
-							'label'      => __( 'Padding', 'bb-form-styler' ),
-							'slider'     => true,
-							'units'      => array( 'px' ),
-							'responsive' => true,
-							'preview'    => array(
-								'type'     => 'css',
-								'selector' => '.gform_wrapper .gfield.gfield--type-address, .gform_wrapper .gfield.address',
-								'property' => 'padding',
-								'unit'     => 'px',
-							),
-						),
-						'address_block_margin' => array(
-							'type'       => 'dimension',
-							'label'      => __( 'Margin', 'bb-form-styler' ),
-							'slider'     => true,
-							'units'      => array( 'px' ),
-							'responsive' => true,
-							'preview'    => array(
-								'type'     => 'css',
-								'selector' => '.gform_wrapper .gfield.gfield--type-address, .gform_wrapper .gfield.address',
-								'property' => 'margin',
 								'unit'     => 'px',
 							),
 						),
