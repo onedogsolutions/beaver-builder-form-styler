@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Beaver Builder Form Styler
  * Description: Gravity Forms and Fluent Forms styling modules for Beaver Builder.
- * Version: 1.2.0
+ * Version: 1.2.1
  * Author: Ryan Waterbury, One Dog Solutions
  * Text Domain: bb-form-styler
  * Domain Path: /languages
@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define constants.
-define( 'BBFS_VERSION', '1.2.0' );
+define( 'BBFS_VERSION', '1.2.1' );
 define( 'BBFS_FILE', __FILE__ );
 define( 'BBFS_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BBFS_URL', plugin_dir_url( __FILE__ ) );

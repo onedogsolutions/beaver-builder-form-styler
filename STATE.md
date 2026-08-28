@@ -2,7 +2,7 @@
 
 ## Release state
 
-**`main` is at v1.2.0** as of the dependency purge and builder-visibility fix. Previous: v1.1.0 (namespace refactor), v1.0.0 (initial release).
+**`main` is at v1.2.1** as of the enabled-modules fix. Previous: v1.2.0 (dependency purge), v1.1.0 (namespace refactor), v1.0.0 (initial release).
 
 ## Unreleased
 
@@ -22,7 +22,83 @@ The Gravity Forms module still exposed an **Enable AJAX** setting that passed an
 - Deleted the `form_ajax` button-group field from `modules/bbfs-gravity-form/bbfs-gravity-form.php`.
 - Removed the `ajax` attribute from the generated `[gravityform]` shortcode in `modules/bbfs-gravity-form/includes/frontend.php`.
 
-## Current Phase: v1.2.0 (Dependency Purge & Builder Visibility)
+## Current Phase: v1.2.1 (Enabled-Modules Visibility)
+
+### The reported problem
+
+The modules went missing from the Beaver Builder content panel *again*, after v1.2.0 had already been released as a fix for the same symptom.
+
+**Root cause.** Not the `group` property, and not anything in this plugin's registration code — both modules register with Beaver Builder correctly in every case. The gate is downstream, in `FLBuilderModel::get_categorized_modules()`:
+
+```php
+else if ( ! in_array( $module->slug, $enabled_modules ) && ! $show_disabled ) {
+    continue;
+}
+```
+
+`get_enabled_modules()` builds that list as:
+
+```php
+$default   = array_keys( self::$modules );
+$default[] = 'all';
+$setting   = self::get_admin_settings_option( '_fl_builder_enabled_modules', true );
+$setting   = ( ! $setting || in_array( 'all', $setting ) ) ? $default : $setting;
+```
+
+So the saved option wins outright whenever it exists and does not contain `all`. Saving **Settings → Beaver Builder → Modules** writes an explicit slug list; any module not registered at that instant — plugin inactive, mid-update, or freshly renamed, as in the v1.1.0 slug change — is simply absent from it and is skipped by the panel forever after, while remaining fully registered. Re-saving the Modules tab fixes it until the next time the option is rewritten, which is exactly the "fixed, then broken again" pattern.
+
+The v1.2.0 work documented this as a manual workaround in the README's troubleshooting list instead of handling it in code, so the plugin had no defence against it.
+
+**Fix.** Hook `fl_builder_enabled_modules` (applied to the final return value of `get_enabled_modules()`) and re-add our own registered slugs, making the plugin authoritative on what it provides.
+
+### v1.2.1 Modifications
+
+**Enabled-modules safeguard.**
+
+- Added `BBFS_Modules::force_enabled_modules()`, hooked to `fl_builder_enabled_modules` via `BBFS_Loader::filter_enabled_modules()`. It adds only slugs that actually registered, and is bypassed entirely by returning `false` from the new `bbfs_force_enable_modules` filter.
+- Added `BBFS_Modules::register_category()`, hooked to `fl_builder_module_categories`, so the category is declared up front and keeps a stable position in the panel.
+
+**Registration is now verified, not assumed.**
+
+- `BBFS_Modules::register()` previously only checked that the class was defined. Beaver Builder's `register_module()` silently `return`s — writing to the error log only — when a module with the same filename slug is already registered, so a collision produced an empty panel with no visible explanation.
+- `register()` now confirms `FLBuilderModel::$modules[ $slug ]` holds an `instanceof` our own class. Checking mere presence of the slug is not enough: on a collision the slug is present but holds the *other* plugin's instance.
+- Failures are recorded per slug via `BBFS_Modules::fail()` and exposed through `get_failures()`.
+- `BBFS_Loader::builder_missing_notice()` now also renders an error notice naming each rejected module and why, instead of leaving the reason in the error log.
+
+**Version bump.**
+
+- `beaver-builder-form-styler.php` header and `BBFS_VERSION` set to `1.2.1`.
+
+**Files changed:**
+
+- `beaver-builder-form-styler.php` — Version
+- `includes/class-bbfs-loader.php` — Registered the two builder filters; split and extended the admin notice
+- `includes/class-bbfs-modules.php` — Registration tracking and verification, `force_enabled_modules()`, `register_category()`, `get_failures()`
+- `README.md` — Rewrote the troubleshooting section with the real cause; documented `bbfs_force_enable_modules`
+
+### Verification performed
+
+Verified against a PHP harness that shims WordPress and copies `register_module()`, `get_enabled_modules()`, `get_categorized_modules()` and `FLBuilderModule::__construct()` verbatim from Beaver Builder, so the panel logic under test is Beaver Builder's own.
+
+- Both modules register and land in `FLBuilderModel::$modules` under slugs `bbfs-gravity-form` / `bbfs-fluent-form`, category `Form Styler Modules`.
+- Panel visibility, pre-fix vs post-fix, across three option states:
+
+| `_fl_builder_enabled_modules` | pre-fix | post-fix |
+| --- | --- | --- |
+| unset (fresh site) | shown | shown |
+| `['all']` | shown | shown |
+| `['rich-text','photo','heading']` | **hidden** | **shown** |
+
+  The third row is the reported bug, reproduced and then fixed.
+- `bbfs_force_enable_modules => false` correctly restores the stock hidden behaviour.
+- Slug-collision case: with another plugin pre-occupying `bbfs-gravity-form`, the failure is detected, the admin notice names the module and reason, and only the surviving `bbfs-fluent-form` is force-enabled.
+- `php -l` clean across all PHP files.
+
+### Not verified
+
+Confirmed against a faithful shim rather than a live WordPress install, so the content panel and settings forms still warrant a smoke test in the real editor. Beaver Builder's editor config cache may also need clearing before the modules reappear on an affected site.
+
+## Historical Phase: v1.2.0 (Dependency Purge & Builder Visibility)
 
 ### The reported problem
 

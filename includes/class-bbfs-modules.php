@@ -30,6 +30,20 @@ if ( ! class_exists( 'BBFS_Modules' ) ) {
 		);
 
 		/**
+		 * Slugs that reached FLBuilderModel::$modules.
+		 *
+		 * @var array
+		 */
+		protected static $registered = array();
+
+		/**
+		 * Slug => reason for every module that failed to register.
+		 *
+		 * @var array
+		 */
+		protected static $failures = array();
+
+		/**
 		 * Register both form-styler modules.
 		 *
 		 * @return void
@@ -43,16 +57,137 @@ if ( ! class_exists( 'BBFS_Modules' ) ) {
 				$file = BBFS_DIR . 'modules/' . $slug . '/' . $slug . '.php';
 
 				if ( ! file_exists( $file ) ) {
-					self::log( sprintf( 'Module file is missing: %s', $file ) );
+					self::fail( $slug, sprintf( 'the module file is missing (%s)', $file ) );
 					continue;
 				}
 
 				require_once $file;
 
 				if ( ! class_exists( $class ) ) {
-					self::log( sprintf( 'Module file %s did not define %s.', $file, $class ) );
+					self::fail( $slug, sprintf( 'the module file did not define %s', $class ) );
+					continue;
+				}
+
+				// Beaver Builder drops a module whose slug is already taken and
+				// only writes to the error log, so confirm ours actually landed.
+				if ( ! self::is_registered_with_builder( $slug, $class ) ) {
+					self::fail(
+						$slug,
+						'Beaver Builder rejected the registration. A module with this filename is already registered by another plugin or theme.'
+					);
+					continue;
+				}
+
+				self::$registered[] = $slug;
+			}
+		}
+
+		/**
+		 * Whether our module owns its slug in Beaver Builder's registry.
+		 *
+		 * Checking that the slug is merely present is not enough: when another
+		 * plugin has already claimed it, Beaver Builder keeps that plugin's
+		 * instance and discards ours. Only an instance of our own class proves
+		 * the registration succeeded.
+		 *
+		 * @param string $slug  Module slug.
+		 * @param string $class Module class name.
+		 * @return bool
+		 */
+		protected static function is_registered_with_builder( $slug, $class ) {
+			if ( ! class_exists( 'FLBuilderModel' ) || ! isset( FLBuilderModel::$modules ) ) {
+				// Nothing to check against; assume the registration call worked.
+				return true;
+			}
+
+			if ( ! isset( FLBuilderModel::$modules[ $slug ] ) ) {
+				return false;
+			}
+
+			return FLBuilderModel::$modules[ $slug ] instanceof $class;
+		}
+
+		/**
+		 * Keep our modules in Beaver Builder's enabled-modules list.
+		 *
+		 * FLBuilderModel::get_enabled_modules() returns the saved
+		 * _fl_builder_enabled_modules option verbatim whenever that option
+		 * exists and does not contain 'all'. Saving Settings -> Beaver Builder
+		 * -> Modules writes an explicit slug list, and any module that was not
+		 * registered at that moment is simply absent from it. Because
+		 * get_categorized_modules() skips every module whose slug is missing
+		 * from that list, our modules silently vanish from the content panel
+		 * while remaining perfectly registered.
+		 *
+		 * Re-adding the slugs here makes the panel authoritative on what this
+		 * plugin provides. Return false from bbfs_force_enable_modules to
+		 * respect the saved list instead.
+		 *
+		 * @param array $enabled Enabled module slugs.
+		 * @return array
+		 */
+		public static function force_enabled_modules( $enabled ) {
+			if ( ! is_array( $enabled ) ) {
+				return $enabled;
+			}
+
+			/**
+			 * Filter whether the form styler modules are force-enabled.
+			 *
+			 * @param bool $force Whether to keep the modules in the enabled list.
+			 */
+			if ( ! apply_filters( 'bbfs_force_enable_modules', true ) ) {
+				return $enabled;
+			}
+
+			foreach ( self::$registered as $slug ) {
+				if ( ! in_array( $slug, $enabled, true ) ) {
+					$enabled[] = $slug;
 				}
 			}
+
+			return $enabled;
+		}
+
+		/**
+		 * Pre-declare the module category so it renders in a stable position.
+		 *
+		 * @param array $categories Custom category names.
+		 * @return array
+		 */
+		public static function register_category( $categories ) {
+			if ( ! is_array( $categories ) || empty( self::$registered ) ) {
+				return $categories;
+			}
+
+			$name = BBFS_Helpers::get_modules_cat( 'form_style' );
+
+			if ( ! in_array( $name, $categories, true ) ) {
+				$categories[] = $name;
+			}
+
+			return $categories;
+		}
+
+		/**
+		 * Registration failures, keyed by slug.
+		 *
+		 * @return array
+		 */
+		public static function get_failures() {
+			return self::$failures;
+		}
+
+		/**
+		 * Record a registration failure and log it.
+		 *
+		 * @param string $slug   Module slug.
+		 * @param string $reason Why registration failed.
+		 * @return void
+		 */
+		protected static function fail( $slug, $reason ) {
+			self::$failures[ $slug ] = $reason;
+			self::log( sprintf( 'Module %s was not registered: %s', $slug, $reason ) );
 		}
 
 		/**

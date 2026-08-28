@@ -38,11 +38,21 @@ Presence of an address field is determined server-side when the builder loads an
 
 **The modules do not appear in the content panel.**
 
-1. **Check the Enabled Modules setting.** Under **Settings → Beaver Builder → Modules**, if anything other than *All* is selected, Beaver Builder filters newly registered modules out of the panel. Either select *All* or tick the two Form Styler modules.
+As of 1.2.1 the plugin defends against the usual cause on its own. If the panel is still empty:
+
+1. **Look for the admin notice.** The plugin now verifies that Beaver Builder actually accepted each module and shows an error notice naming any that were rejected — most often because another plugin or theme already registered a module with the same filename.
 2. **Clear the builder cache.** Beaver Builder caches its editor config. Use **Settings → Beaver Builder → Tools → Clear Cache** after installing or updating.
 3. **Confirm Beaver Builder is active.** The plugin shows an admin notice when it is not.
 
-Note that these modules are registered without a module *group*, so they appear in the default module list under their own **Form Styler Modules** category heading — not behind the content panel's group dropdown. Use the `bbfs_modules_category` filter to change the category name.
+### Why the modules used to disappear
+
+Beaver Builder stores the content panel's module list in the `_fl_builder_enabled_modules` option. `FLBuilderModel::get_enabled_modules()` returns that option verbatim whenever it exists and does not contain `all`, and `get_categorized_modules()` then skips every module whose slug is missing from it.
+
+Saving **Settings → Beaver Builder → Modules** writes an explicit slug list. Any module that was not registered at that moment — because the plugin was inactive, mid-update, or had just been renamed — is absent from the saved list, so it silently vanishes from the panel even though it registered perfectly. That is why the symptom kept coming back after being "fixed".
+
+The plugin now hooks `fl_builder_enabled_modules` and re-adds its own slugs, so the panel reflects what the plugin provides rather than a stale saved list. Return `false` from the `bbfs_force_enable_modules` filter if you would rather honour the saved list and control visibility from the Modules tab.
+
+These modules are registered without a module *group*, so they appear in the default module list under their own **Form Styler Modules** category heading — not behind the content panel's group dropdown. Use the `bbfs_modules_category` filter to change the category name.
 
 ## File structure
 
@@ -63,6 +73,7 @@ beaver-builder-form-styler/
 | Filter | Purpose |
 | --- | --- |
 | `bbfs_modules_category` | Change the content-panel category the modules are listed under. |
+| `bbfs_force_enable_modules` | Return `false` to stop the plugin re-adding its slugs to Beaver Builder's enabled-modules list. |
 | `bbfs_gravity_form_use_gravity_theme` | Return `false` to stop the Gravity Forms shortcode requesting the `gravity` theme. |
 
 ## Development notes
@@ -70,6 +81,8 @@ beaver-builder-form-styler/
 - Color handling lives in `BBFS_Helpers` (`get_color_value()`, `hex_to_rgba()`, `esc_tags()`).
 - Module settings JS is plain ES2020+ registered through `FLBuilder.registerModuleHelper()`.
 - Form-table queries are gated behind `BBFS_Helpers::is_builder_request()` so they only run while the builder is open.
+- Modules register on `init` priority 11; Beaver Builder loads its own on `init` priority 2.
+- `BBFS_Modules::register()` confirms each slug in `FLBuilderModel::$modules` holds an instance of our own class, so a slug collision is reported rather than silently swallowed.
 
 ## License
 

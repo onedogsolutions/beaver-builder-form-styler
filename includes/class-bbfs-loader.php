@@ -34,7 +34,15 @@ if ( ! class_exists( 'BBFS_Loader' ) ) {
 			require_once BBFS_DIR . 'includes/class-bbfs-helpers.php';
 
 			// Register modules once Beaver Builder has loaded its own.
+			// Beaver Builder loads core modules on init priority 2, so 11 is
+			// comfortably after it without waiting for the editor to boot.
 			add_action( 'init', array( __CLASS__, 'register_modules' ), 11 );
+
+			// Keep the modules visible in the content panel and give the
+			// category a stable position. Both filters are read every time the
+			// panel is built, so they must be added before that happens.
+			add_filter( 'fl_builder_enabled_modules', array( __CLASS__, 'filter_enabled_modules' ) );
+			add_filter( 'fl_builder_module_categories', array( __CLASS__, 'filter_module_categories' ) );
 
 			// Hand the editor its form data. Both hooks fire late so the
 			// builder script handle is already registered.
@@ -58,6 +66,34 @@ if ( ! class_exists( 'BBFS_Loader' ) ) {
 			require_once BBFS_DIR . 'includes/class-bbfs-modules.php';
 
 			BBFS_Modules::register();
+		}
+
+		/**
+		 * Keep the form styler modules in Beaver Builder's enabled list.
+		 *
+		 * @param array $enabled Enabled module slugs.
+		 * @return array
+		 */
+		public static function filter_enabled_modules( $enabled ) {
+			if ( ! class_exists( 'BBFS_Modules' ) ) {
+				return $enabled;
+			}
+
+			return BBFS_Modules::force_enabled_modules( $enabled );
+		}
+
+		/**
+		 * Declare the form styler module category.
+		 *
+		 * @param array $categories Custom category names.
+		 * @return array
+		 */
+		public static function filter_module_categories( $categories ) {
+			if ( ! class_exists( 'BBFS_Modules' ) ) {
+				return $categories;
+			}
+
+			return BBFS_Modules::register_category( $categories );
 		}
 
 		/**
@@ -110,13 +146,51 @@ if ( ! class_exists( 'BBFS_Loader' ) ) {
 		 * @return void
 		 */
 		public static function builder_missing_notice() {
-			if ( class_exists( 'FLBuilder' ) || ! current_user_can( 'activate_plugins' ) ) {
+			if ( ! current_user_can( 'activate_plugins' ) ) {
 				return;
 			}
 
+			if ( ! class_exists( 'FLBuilder' ) ) {
+				printf(
+					'<div class="notice notice-warning"><p>%s</p></div>',
+					esc_html__( 'Beaver Builder Form Styler needs Beaver Builder to be active. Its modules will not appear in the builder until then.', 'bb-form-styler' )
+				);
+				return;
+			}
+
+			self::registration_failure_notice();
+		}
+
+		/**
+		 * Report modules that Beaver Builder did not accept.
+		 *
+		 * Beaver Builder refuses a module whose slug is already taken and only
+		 * writes to the error log, which makes an empty content panel very hard
+		 * to explain. Surfacing it here names the failing module instead.
+		 *
+		 * @return void
+		 */
+		protected static function registration_failure_notice() {
+			if ( ! class_exists( 'BBFS_Modules' ) ) {
+				return;
+			}
+
+			$failures = BBFS_Modules::get_failures();
+
+			if ( empty( $failures ) ) {
+				return;
+			}
+
+			$items = '';
+
+			foreach ( $failures as $slug => $reason ) {
+				$items .= sprintf( '<li><code>%s</code> &mdash; %s</li>', esc_html( $slug ), esc_html( $reason ) );
+			}
+
 			printf(
-				'<div class="notice notice-warning"><p>%s</p></div>',
-				esc_html__( 'Beaver Builder Form Styler needs Beaver Builder to be active. Its modules will not appear in the builder until then.', 'bb-form-styler' )
+				'<div class="notice notice-error"><p>%s</p><ul>%s</ul></div>',
+				esc_html__( 'Beaver Builder Form Styler could not register the following modules, so they will not appear in the builder:', 'bb-form-styler' ),
+				$items // phpcs:ignore WordPress.Security.EscapeOutput
 			);
 		}
 	}
