@@ -4,6 +4,15 @@
 
 **`main` is at v1.2.0** as of the dependency purge and builder-visibility fix. Previous: v1.1.0 (namespace refactor), v1.0.0 (initial release).
 
+## Unreleased
+
+**Removed the Gravity Forms AJAX toggle.**
+
+The Gravity Forms module still exposed an **Enable AJAX** setting that passed an `ajax` attribute into the `[gravityform]` shortcode. Since the plugin should not use AJAX anywhere, the setting and shortcode output have been removed.
+
+- Deleted the `form_ajax` button-group field from `modules/bbfs-gravity-form/bbfs-gravity-form.php`.
+- Removed the `ajax` attribute from the generated `[gravityform]` shortcode in `modules/bbfs-gravity-form/includes/frontend.php`.
+
 ## Current Phase: v1.2.0 (Dependency Purge & Builder Visibility)
 
 ### The reported problem

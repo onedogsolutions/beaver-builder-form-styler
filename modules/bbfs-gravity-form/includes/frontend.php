@@ -1,10 +1,8 @@
 <?php
-$enable_ajax = 'yes' === $settings->form_ajax ? 'true' : 'false';
-$shortcode   = '[gravityform';
-$shortcode   .= ' id="' . absint( $settings->select_form_field ) . '"';
-$shortcode   .= ' title="' . $settings->title_field . '"';
-$shortcode   .= ' description="' . $settings->description_field . '"';
-$shortcode   .= ' ajax="' . $enable_ajax . '"';
+$shortcode = '[gravityform';
+$shortcode .= ' id="' . absint( $settings->select_form_field ) . '"';
+$shortcode .= ' title="' . $settings->title_field . '"';
+$shortcode .= ' description="' . $settings->description_field . '"';
 if ( '' !== $settings->form_tab_index ) {
 	$shortcode .= ' tabindex="' . intval( $settings->form_tab_index ) . '"';
 }

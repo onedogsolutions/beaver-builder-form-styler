@@ -150,15 +150,6 @@ FLBuilder::register_module(
 								'none'  => __( 'Hide', 'bb-form-styler' ),
 							),
 						),
-						'form_ajax'              => array(
-							'type'    => 'button-group',
-							'label'   => __( 'Enable AJAX', 'bb-form-styler' ),
-							'default' => 'yes',
-							'options' => array(
-								'yes' => __( 'Yes', 'bb-form-styler' ),
-								'no'  => __( 'No', 'bb-form-styler' ),
-							),
-						),
 						'form_tab_index'         => array(
 							'type'    => 'text',
 							'label'   => __( 'Tab Index', 'bb-form-styler' ),
