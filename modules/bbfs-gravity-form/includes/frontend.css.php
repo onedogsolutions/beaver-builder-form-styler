@@ -92,7 +92,7 @@ FLBuilderCSS::typography_field_rule(
 }
 <?php } ?>
 
-.fl-node-<?php echo $id; ?> .bbfs-gravity-form-content .gform_wrapper ul li.gfield {
+.fl-node-<?php echo $id; ?> .bbfs-gravity-form-content .gform_wrapper ul li.gfield:not(.gfield--type-address):not(.address) {
 	list-style-type: none !important;
 	<?php if ( $settings->input_field_margin >= 0 ) { ?>
 	margin-bottom: <?php echo $settings->input_field_margin; ?>px;
@@ -284,9 +284,9 @@ FLBuilderCSS::responsive_rule(
 	array(
 		'settings'     => $settings,
 		'setting_name' => 'input_field_padding',
-		'selector'     => ".fl-node-$id .bbfs-gravity-form-content .gform_wrapper .gfield input:not([type='radio']):not([type='checkbox']):not([type='submit']):not([type='button']):not([type='image']):not([type='file']),
-							.fl-node-$id .bbfs-gravity-form-content .gform_wrapper .gfield select,
-							.fl-node-$id .bbfs-gravity-form-content .gform_wrapper .gfield textarea",
+		'selector'     => ".fl-node-$id .bbfs-gravity-form-content .gform_wrapper .gfield:not(.gfield--type-address):not(.address) input:not([type='radio']):not([type='checkbox']):not([type='submit']):not([type='button']):not([type='image']):not([type='file']),
+							.fl-node-$id .bbfs-gravity-form-content .gform_wrapper .gfield:not(.gfield--type-address):not(.address) select,
+							.fl-node-$id .bbfs-gravity-form-content .gform_wrapper .gfield:not(.gfield--type-address):not(.address) textarea",
 		'prop'         => 'padding',
 		'unit'		   => 'px',
 	)
@@ -300,14 +300,14 @@ FLBuilderCSS::responsive_rule(
 	<?php } ?>
 }
 
-.fl-node-<?php echo $id; ?> .bbfs-gravity-form-content .gform_wrapper .ginput_complex input:not([type=radio]):not([type=checkbox]):not([type=submit]):not([type=image]):not([type=file]),
-.fl-node-<?php echo $id; ?> .bbfs-gravity-form-content .gform_wrapper .ginput_complex select {
+.fl-node-<?php echo $id; ?> .bbfs-gravity-form-content .gform_wrapper .gfield:not(.gfield--type-address):not(.address) .ginput_complex input:not([type=radio]):not([type=checkbox]):not([type=submit]):not([type=image]):not([type=file]),
+.fl-node-<?php echo $id; ?> .bbfs-gravity-form-content .gform_wrapper .gfield:not(.gfield--type-address):not(.address) .ginput_complex select {
 	<?php if ( '' !== $settings->input_field_margin && $settings->input_field_margin >= 0 ) { ?>
 	margin-bottom: <?php echo ( $settings->input_field_margin * 30 ) / 100; ?>px;
 	<?php } ?>
 }
 
-.fl-node-<?php echo $id; ?> .bbfs-gravity-form-content .gform_wrapper .ginput_complex span {
+.fl-node-<?php echo $id; ?> .bbfs-gravity-form-content .gform_wrapper .gfield:not(.gfield--type-address):not(.address) .ginput_complex span {
 	<?php if ( '' !== $settings->input_field_margin && $settings->input_field_margin >= 0 ) { ?>
 	margin-bottom: <?php echo ( $settings->input_field_margin * 40 ) / 100; ?>px;
 	<?php } ?>

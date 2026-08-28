@@ -51,7 +51,7 @@
 }
 <?php } ?>
 
-.fl-node-<?php echo $id; ?> .bbfs-fluent-form-content .ff-field_container {
+.fl-node-<?php echo $id; ?> .bbfs-fluent-form-content .fluentform .ff-el-form-group:not([data-type="address"]) .ff-field_container {
 	<?php if ( $settings->input_field_margin >= 0 ) { ?>
 	margin-bottom: <?php echo $settings->input_field_margin; ?>px;
 	<?php } ?>
@@ -182,7 +182,7 @@
 	FLBuilderCSS::dimension_field_rule( array(
 		'settings'		=> $settings,
 		'setting_name' 	=> 'input_field_padding',
-		'selector' 		=> ".fl-node-$id .bbfs-fluent-form-content .fluentform .ff-el-form-control, .fl-node-$id .bbfs-fluent-form-content .select2-container--default .select2-selection--multiple",
+		'selector' 		=> ".fl-node-$id .bbfs-fluent-form-content .fluentform .ff-el-form-group:not([data-type=\"address\"]) .ff-el-form-control, .fl-node-$id .bbfs-fluent-form-content .fluentform .ff-el-form-group:not([data-type=\"address\"]) .select2-container--default .select2-selection--multiple",
 		'unit'			=> 'px',
 		'props'			=> array(
 			'padding-top' 		=> 'input_field_padding_top',

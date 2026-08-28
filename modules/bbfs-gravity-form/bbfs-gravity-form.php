@@ -399,7 +399,7 @@ FLBuilder::register_module(
 							'default'    => '',
 							'preview'    => array(
 								'type'     => 'css',
-								'selector' => '.gform_wrapper .gfield input:not([type="radio"]):not([type="checkbox"]):not([type="submit"]):not([type="button"]):not([type="image"]):not([type="file"]), .gform_wrapper .gfield select, .gform_wrapper .gfield textarea',
+								'selector' => '.gform_wrapper .gfield:not(.gfield--type-address):not(.address) input:not([type="radio"]):not([type="checkbox"]):not([type="submit"]):not([type="button"]):not([type="image"]):not([type="file"]), .gform_wrapper .gfield:not(.gfield--type-address):not(.address) select, .gform_wrapper .gfield:not(.gfield--type-address):not(.address) textarea',
 								'property' => 'padding',
 								'unit'     => 'px',
 							),
@@ -413,7 +413,7 @@ FLBuilder::register_module(
 							'default' => '',
 							'preview' => array(
 								'type'     => 'css',
-								'selector' => '.gform_wrapper .gfield input:not([type="radio"]):not([type="checkbox"]):not([type="submit"]):not([type="button"]):not([type="image"]):not([type="file"]), .gform_wrapper .gfield select, .gform_wrapper .gfield textarea',
+								'selector' => '.gform_wrapper .gfield:not(.gfield--type-address):not(.address) input:not([type="radio"]):not([type="checkbox"]):not([type="submit"]):not([type="button"]):not([type="image"]):not([type="file"]), .gform_wrapper .gfield:not(.gfield--type-address):not(.address) select, .gform_wrapper .gfield:not(.gfield--type-address):not(.address) textarea',
 								'property' => 'margin-bottom',
 								'unit'     => 'px',
 							),

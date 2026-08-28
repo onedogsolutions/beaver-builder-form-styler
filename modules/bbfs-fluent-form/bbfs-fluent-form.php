@@ -482,7 +482,7 @@ FLBuilder::register_module(
 							'responsive'		=> true,
 							'preview'			=> array(
 								'type'				=> 'css',
-								'selector'			=> '.bbfs-fluent-form-content .fluentform .ff-el-form-control',
+								'selector'			=> '.bbfs-fluent-form-content .fluentform .ff-el-form-group:not([data-type="address"]) .ff-el-form-control',
 								'property'			=> 'padding',
 								'unit'				=> 'px',
 							),
@@ -495,7 +495,7 @@ FLBuilder::register_module(
 							'slider'			=> true,
 							'preview'           => array(
 								'type'          => 'css',
-								'selector'      => '.bbfs-fluent-form-content .ff-field_container',
+								'selector'      => '.bbfs-fluent-form-content .fluentform .ff-el-form-group:not([data-type="address"]) .ff-field_container',
 								'property'      => 'margin-bottom',
 								'unit'          => 'px',
 							),

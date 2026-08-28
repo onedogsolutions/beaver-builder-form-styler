@@ -14,6 +14,7 @@ The Address Block tab has been removed from both the Gravity Form and Fluent For
 - Added an `address_block` section with `address_block_padding` and `address_block_margin_bottom` unit fields to each module's Inputs tab.
 - Replaced `dimension_field_rule()` output with `responsive_rule()` output in both modules' `frontend.css.php` files.
 - Updated both `settings.js` helpers to toggle the `#fl-builder-settings-section-address_block` section instead of the removed tab.
+- Updated master input padding and margin-bottom selectors in both modules so they do not target the address block; the address block now relies solely on its own Padding and Margin Bottom controls.
 
 **Removed the Gravity Forms AJAX toggle.**
 
