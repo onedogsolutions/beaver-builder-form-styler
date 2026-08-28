@@ -13,7 +13,6 @@ class BBFS_Fluent_Form_Module extends FLBuilderModule {
 		parent::__construct(array(
 			'name'          => __( 'WP Fluent Forms', 'bb-form-styler' ),
 			'description'   => __( 'A module for WP Fluent Forms.', 'bb-form-styler' ),
-			'group'         => BBFS_Helpers::get_modules_group(),
 			'category'      => BBFS_Helpers::get_modules_cat( 'form_style' ),
 			'dir'           => BBFS_DIR . 'modules/bbfs-fluent-form/',
 			'url'           => BBFS_URL . 'modules/bbfs-fluent-form/',
@@ -26,7 +25,7 @@ class BBFS_Fluent_Form_Module extends FLBuilderModule {
 	public static function get_fluent_forms() {
 		$options = array();
 
-		if ( ! isset( $_GET['fl_builder'] ) ) {
+		if ( ! BBFS_Helpers::is_builder_request() ) {
 			return $options;
 		}
 
@@ -72,7 +71,7 @@ FLBuilder::register_module(
 					'title' => __( 'Settings', 'bb-form-styler' ),
 					'fields'    => array(
 						'form_custom_title_desc'   => array(
-							'type'          => 'pp-switch',
+							'type'          => 'button-group',
 							'label'         => __( 'Custom Title & Description', 'bb-form-styler' ),
 							'default'       => 'no',
 							'options'       => array(
@@ -120,7 +119,7 @@ FLBuilder::register_module(
 					'title'         => __( 'Form Background', 'bb-form-styler' ), // Section Title
 					'fields'        => array( // Section Fields
 						'form_bg_type'      => array(
-							'type'          => 'pp-switch',
+							'type'          => 'button-group',
 							'label'         => __( 'Background Type', 'bb-form-styler' ),
 							'default'       => 'color',
 							'options'       => array(
@@ -162,7 +161,7 @@ FLBuilder::register_module(
 							),
 						),
 						'form_bg_size'      => array(
-							'type'          => 'pp-switch',
+							'type'          => 'button-group',
 							'label'         => __( 'Background Size', 'bb-form-styler' ),
 							'default'       => 'cover',
 							'options'       => array(
@@ -171,7 +170,7 @@ FLBuilder::register_module(
 							),
 						),
 						'form_bg_repeat'    => array(
-							'type'          => 'pp-switch',
+							'type'          => 'button-group',
 							'label'         => __( 'Background Repeat', 'bb-form-styler' ),
 							'default'       => 'no-repeat',
 							'options'       => array(
@@ -289,7 +288,7 @@ FLBuilder::register_module(
 					'collapsed'	=> true,
 					'fields'	=> array(
 						'display_labels'   => array(
-							'type'         => 'pp-switch',
+							'type'         => 'button-group',
 							'label'        => __( 'Labels', 'bb-form-styler' ),
 							'default'      => 'inline-block',
 							'options'      => array(
@@ -434,7 +433,7 @@ FLBuilder::register_module(
 					'collapsed'		=> true,
 					'fields'        => array( // Section Fields
 						'input_field_width'     => array(
-							'type'              => 'pp-switch',
+							'type'              => 'button-group',
 							'label'             => __( 'Full Width', 'bb-form-styler' ),
 							'default'           => 'false',
 							'options'           => array(
@@ -508,7 +507,7 @@ FLBuilder::register_module(
 					'collapsed'		=> true,
 					'fields'        => array( // Section Fields
 						'input_placeholder_display' 	=> array(
-							'type'          => 'pp-switch',
+							'type'          => 'button-group',
 							'label'         => __( 'Show Placeholder', 'bb-form-styler' ),
 							'default'       => 'block',
 							'options'		=> array(
@@ -540,7 +539,7 @@ FLBuilder::register_module(
 					'collapsed' => true,
 					'fields'    => array(
 						'radio_cb_style'           => array(
-							'type'    => 'pp-switch',
+							'type'    => 'button-group',
 							'label'   => __( 'Enable Custom Style', 'bb-form-styler' ),
 							'default' => 'no',
 							'options' => array(
@@ -686,7 +685,7 @@ FLBuilder::register_module(
 					'collapsed'		=> true,
 					'fields'            => array( // Section Fields
 						'button_width'  => array(
-							'type'      => 'pp-switch',
+							'type'      => 'button-group',
 							'label'     => __( 'Full Width', 'bb-form-styler' ),
 							'default'   => 'false',
 							'options'   => array(
@@ -741,7 +740,7 @@ FLBuilder::register_module(
 					'title'             => __( 'Errors', 'bb-form-styler' ), // Section Title
 					'fields'            => array( // Section Fields
 						'error_message'   => array(
-							'type'             => 'pp-switch',
+							'type'             => 'button-group',
 							'label'            => __( 'Error Messages', 'bb-form-styler' ),
 							'default'          => 'block',
 							'options'          => array(
@@ -842,7 +841,7 @@ FLBuilder::register_module(
 							'type'          => 'select',
 							'label'         => __('Tag', 'bb-form-styler'),
 							'default'       => 'h3',
-							'sanitize' => array( 'pp_esc_tags', 'h3' ),
+							'sanitize' => array( 'BBFS_Helpers', 'esc_tags' ),
 							'options'       => array(
 								'h1'            => 'H1',
 								'h2'            => 'H2',

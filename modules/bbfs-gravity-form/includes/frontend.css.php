@@ -37,7 +37,7 @@ FLBuilderCSS::typography_field_rule(
 		'settings'     => $settings,
 		'setting_name' => 'title_typography',
 		'selector'     => ".fl-node-$id .bbfs-gravity-form-content .gform_wrapper .gform_title,
-							.fl-node-$id .form-title",
+							.fl-node-$id .bbfs-form-title",
 	)
 );
 // Form Description Typography
@@ -46,7 +46,7 @@ FLBuilderCSS::typography_field_rule(
 		'settings'     => $settings,
 		'setting_name' => 'description_typography',
 		'selector'     => ".fl-node-$id .bbfs-gravity-form-content .gform_wrapper span.gform_description,
-							.fl-node-$id .form-description",
+							.fl-node-$id .bbfs-form-description",
 	)
 );
 // Form Section Typography
@@ -100,14 +100,14 @@ FLBuilderCSS::typography_field_rule(
 }
 
 .fl-builder-content .fl-node-<?php echo $id; ?> .bbfs-gravity-form-content .gform_wrapper .gform_title,
-.fl-builder-content .fl-node-<?php echo $id; ?> .bbfs-gravity-form-content .form-title {
+.fl-builder-content .fl-node-<?php echo $id; ?> .bbfs-gravity-form-content .bbfs-form-title {
 	<?php if ( $settings->title_color ) { ?>
 	color: <?php echo BBFS_Helpers::get_color_value( $settings->title_color ); ?>;
 	<?php } ?>
 	display: <?php echo ( 'false' === $settings->title_field ) ? 'none' : 'block'; ?>;
 }
 
-.fl-builder-content .fl-node-<?php echo $id; ?> .bbfs-gravity-form-content .form-title {
+.fl-builder-content .fl-node-<?php echo $id; ?> .bbfs-gravity-form-content .bbfs-form-title {
 	display: <?php echo ( 'yes' === $settings->form_custom_title_desc ) ? 'block' : 'none'; ?>;
 }
 
@@ -118,14 +118,14 @@ FLBuilderCSS::typography_field_rule(
 }
 
 .fl-builder-content .fl-node-<?php echo $id; ?> .bbfs-gravity-form-content .gform_wrapper span.gform_description,
-.fl-builder-content .fl-node-<?php echo $id; ?> .bbfs-gravity-form-content .form-description {
+.fl-builder-content .fl-node-<?php echo $id; ?> .bbfs-gravity-form-content .bbfs-form-description {
 	<?php if ( $settings->description_color ) { ?>
 	color: <?php echo BBFS_Helpers::get_color_value( $settings->description_color ); ?>;
 	<?php } ?>
 	display: <?php echo ( 'false' === $settings->description_field ) ? 'none' : 'block'; ?>;
 }
 
-.fl-builder-content .fl-node-<?php echo $id; ?> .bbfs-gravity-form-content .form-description {
+.fl-builder-content .fl-node-<?php echo $id; ?> .bbfs-gravity-form-content .bbfs-form-description {
 	display: <?php echo ( 'yes' === $settings->form_custom_title_desc ) ? 'block' : 'none'; ?>;
 }
 

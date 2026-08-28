@@ -25,8 +25,8 @@
 	position: relative;
 }
 
-.bbfs-gravity-form-content .form-title,
-.bbfs-gravity-form-content .form-description {
+.bbfs-gravity-form-content .bbfs-form-title,
+.bbfs-gravity-form-content .bbfs-form-description {
 	position: relative;
 }
 
