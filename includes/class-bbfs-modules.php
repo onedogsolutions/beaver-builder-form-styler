@@ -20,6 +20,16 @@ if ( ! class_exists( 'BBFS_Modules' ) ) {
 	class BBFS_Modules {
 
 		/**
+		 * Module class names keyed by their directory / file slug.
+		 *
+		 * @var array
+		 */
+		protected static $modules = array(
+			'bbfs-gravity-form' => 'BBFS_Gravity_Form_Module',
+			'bbfs-fluent-form'  => 'BBFS_Fluent_Form_Module',
+		);
+
+		/**
 		 * Register both form-styler modules.
 		 *
 		 * @return void
@@ -29,15 +39,106 @@ if ( ! class_exists( 'BBFS_Modules' ) ) {
 				return;
 			}
 
-			// Gravity Form module.
-			if ( file_exists( BBFS_DIR . 'modules/bbfs-gravity-form/bbfs-gravity-form.php' ) ) {
-				require_once BBFS_DIR . 'modules/bbfs-gravity-form/bbfs-gravity-form.php';
+			foreach ( self::$modules as $slug => $class ) {
+				$file = BBFS_DIR . 'modules/' . $slug . '/' . $slug . '.php';
+
+				if ( ! file_exists( $file ) ) {
+					self::log( sprintf( 'Module file is missing: %s', $file ) );
+					continue;
+				}
+
+				require_once $file;
+
+				if ( ! class_exists( $class ) ) {
+					self::log( sprintf( 'Module file %s did not define %s.', $file, $class ) );
+				}
 			}
-			
-			// Fluent Form module.
-			if ( file_exists( BBFS_DIR . 'modules/bbfs-fluent-form/bbfs-fluent-form.php' ) ) {
-				require_once BBFS_DIR . 'modules/bbfs-fluent-form/bbfs-fluent-form.php';
+		}
+
+		/**
+		 * Log a registration problem without interrupting the page.
+		 *
+		 * @param string $message Message to log.
+		 * @return void
+		 */
+		protected static function log( $message ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'Beaver Builder Form Styler: ' . $message ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			}
+		}
+
+		/**
+		 * Build a map of form IDs to whether that form contains an address field.
+		 *
+		 * Computed once per builder request and handed to the editor as JSON so
+		 * the module settings helpers can show or hide the Address Block tab
+		 * without making a request of their own.
+		 *
+		 * @return array Provider slug => array( form id => bool ).
+		 */
+		public static function get_address_field_map() {
+			return array(
+				'gravity' => self::gravity_address_field_map(),
+				'fluent'  => self::fluent_address_field_map(),
+			);
+		}
+
+		/**
+		 * Address-field map for every Gravity Form.
+		 *
+		 * @return array
+		 */
+		protected static function gravity_address_field_map() {
+			$map = array();
+
+			if ( ! class_exists( 'GFAPI' ) ) {
+				return $map;
+			}
+
+			$forms = GFAPI::get_forms();
+
+			if ( empty( $forms ) || is_wp_error( $forms ) ) {
+				return $map;
+			}
+
+			foreach ( $forms as $form ) {
+				if ( ! isset( $form['id'] ) ) {
+					continue;
+				}
+
+				$map[ (string) $form['id'] ] = self::form_fields_have_address( isset( $form['fields'] ) ? $form['fields'] : array() );
+			}
+
+			return $map;
+		}
+
+		/**
+		 * Address-field map for every Fluent Form.
+		 *
+		 * @return array
+		 */
+		protected static function fluent_address_field_map() {
+			$map = array();
+
+			if ( ! function_exists( 'wpFluentForm' ) ) {
+				return $map;
+			}
+
+			global $wpdb;
+
+			$forms = $wpdb->get_results( "SELECT id, form_fields FROM {$wpdb->prefix}fluentform_forms" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+
+			if ( empty( $forms ) ) {
+				return $map;
+			}
+
+			foreach ( $forms as $form ) {
+				$fields = empty( $form->form_fields ) ? array() : json_decode( $form->form_fields, true );
+
+				$map[ (string) $form->id ] = self::array_contains_address_field( $fields );
+			}
+
+			return $map;
 		}
 
 		/**
@@ -57,13 +158,7 @@ if ( ! class_exists( 'BBFS_Modules' ) ) {
 				return false;
 			}
 
-			foreach ( $form['fields'] as $field ) {
-				if ( isset( $field->type ) && 'address' === $field->type ) {
-					return true;
-				}
-			}
-
-			return false;
+			return self::form_fields_have_address( $form['fields'] );
 		}
 
 		/**
@@ -79,15 +174,36 @@ if ( ! class_exists( 'BBFS_Modules' ) ) {
 
 			global $wpdb;
 
-			$form = $wpdb->get_row( $wpdb->prepare( "SELECT form_fields FROM {$wpdb->prefix}fluentform_forms WHERE id = %d", $form_id ) );
+			$form = $wpdb->get_row( $wpdb->prepare( "SELECT form_fields FROM {$wpdb->prefix}fluentform_forms WHERE id = %d", $form_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 
 			if ( empty( $form ) || empty( $form->form_fields ) ) {
 				return false;
 			}
 
-			$fields = json_decode( $form->form_fields, true );
+			return self::array_contains_address_field( json_decode( $form->form_fields, true ) );
+		}
 
-			return self::array_contains_address_field( $fields );
+		/**
+		 * Check a Gravity Forms field collection for an address field.
+		 *
+		 * @param array $fields Gravity Forms field objects.
+		 * @return bool
+		 */
+		protected static function form_fields_have_address( $fields ) {
+			if ( ! is_array( $fields ) ) {
+				return false;
+			}
+
+			foreach ( $fields as $field ) {
+				if ( isset( $field->type ) && 'address' === $field->type ) {
+					return true;
+				}
+				if ( is_array( $field ) && isset( $field['type'] ) && 'address' === $field['type'] ) {
+					return true;
+				}
+			}
+
+			return false;
 		}
 
 		/**
@@ -101,7 +217,7 @@ if ( ! class_exists( 'BBFS_Modules' ) ) {
 				return false;
 			}
 
-			foreach ( $fields as $key => $value ) {
+			foreach ( $fields as $value ) {
 				if ( is_array( $value ) ) {
 					if ( isset( $value['type'] ) && 'address' === $value['type'] ) {
 						return true;

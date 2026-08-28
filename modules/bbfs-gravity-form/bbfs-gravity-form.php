@@ -16,7 +16,6 @@ class BBFS_Gravity_Form_Module extends FLBuilderModule {
 			array(
 				'name'          => __( 'Gravity Form', 'bb-form-styler' ),
 				'description'   => __( 'A module for Gravity Form.', 'bb-form-styler' ),
-				'group'         => BBFS_Helpers::get_modules_group(),
 				'category'      => BBFS_Helpers::get_modules_cat( 'form_style' ),
 				'dir'           => BBFS_DIR . 'modules/bbfs-gravity-form/',
 				'url'           => BBFS_URL . 'modules/bbfs-gravity-form/',
@@ -25,38 +24,20 @@ class BBFS_Gravity_Form_Module extends FLBuilderModule {
 			)
 		);
 
-		add_action( 'wp_ajax_bbfs_gf_forms_dropdown_html', array( $this, 'gf_forms_dropdown_html' ) );
-		add_action( 'wp_ajax_nopriv_bbfs_gf_forms_dropdown_html', array( $this, 'gf_forms_dropdown_html' ) );
 	}
 
 	public function enqueue_scripts() {
-		if ( isset( $_GET['fl_builder'] ) ) {
+		if ( BBFS_Helpers::is_builder_request() ) {
 			wp_enqueue_style( 'gforms_formsmain_css' );
 		}
 	}
 
-	public function gf_forms_dropdown_html() {
-		$options = '<option value="">' . __( 'None', 'bb-form-styler' ) . '</option>';
-
-		global $wpdb;
-
-		if ( class_exists( 'GFForms' ) ) {
-			$form_table_name = GFFormsModel::get_form_table_name();
-			$id              = 0;
-			$forms           = $wpdb->get_results( $wpdb->prepare( 'SELECT id, title FROM ' . $form_table_name . ' WHERE id != %d', $id ), OBJECT );
-			if ( ! is_wp_error( $forms ) ) {
-				foreach ( $forms as $form ) {
-					$options .= '<option value="' . $form->id . '">' . esc_html( $form->title ) . '</option>';
-				}
-			}
-		}
-
-		echo $options;
-		die;
-	}
-
 	public static function gf_forms_dropdown_options() {
 		$options = array( '' => __( 'None', 'bb-form-styler' ) );
+
+		if ( ! BBFS_Helpers::is_builder_request() ) {
+			return $options;
+		}
 
 		global $wpdb;
 
@@ -74,260 +55,6 @@ class BBFS_Gravity_Form_Module extends FLBuilderModule {
 		return $options;
 	}
 
-	public function filter_settings( $settings, $helper ) {
-		if ( ! class_exists( 'PP_Module_Fields' ) ) {
-			return $settings;
-		}
-
-		// Handle old Form border and radius fields.
-		$settings = PP_Module_Fields::handle_border_field(
-			$settings,
-			array(
-				'form_border_style'  => array(
-					'type' => 'style',
-				),
-				'form_border_width'  => array(
-					'type' => 'width',
-				),
-				'form_border_color'  => array(
-					'type' => 'color',
-				),
-				'form_border_radius' => array(
-					'type' => 'radius',
-				),
-			),
-			'form_border_group'
-		);
-
-		if ( isset( $settings->input_field_border_width ) && isset( $settings->input_field_border_position ) ) {
-			$border_width = $settings->input_field_border_width;
-			$border_pos = explode( '-', $settings->input_field_border_position );
-
-			if ( ! isset( $border_pos[1] ) ) {
-				$settings->input_field_border_width_array = array(
-					'top'    => $border_width,
-					'left'   => $border_width,
-					'bottom' => $border_width,
-					'right'  => $border_width,
-				);
-			} else {
-				$settings->input_field_border_width_array = array();
-				$settings->input_field_border_width_array[ $border_pos[1] ] = $border_width;
-			}
-
-			unset( $settings->input_field_border_width );
-			unset( $settings->input_field_border_position );
-		}
-
-		// Handle old Input border and radius fields.
-		$settings = PP_Module_Fields::handle_border_field(
-			$settings,
-			array(
-				'input_field_border_width_array'  => array(
-					'type' => 'width',
-					'style' => 'solid',
-				),
-				'input_field_border_color'  => array(
-					'type' => 'color',
-				),
-				'input_field_border_radius' => array(
-					'type' => 'radius',
-				),
-			),
-			'input_field_border_group'
-		);
-
-		if ( isset( $settings->input_field_box_shadow ) ) {
-			if ( 'none' === $settings->input_field_box_shadow ) {
-				if ( ! isset( $settings->input_field_border_group['shadow'] ) || ! is_array( $settings->input_field_border_group['shadow'] ) ) {
-					$settings->input_field_border_group['shadow'] = array();
-				}
-				$settings->input_field_border_group['shadow']['color'] = '';
-				$settings->input_field_border_group['shadow']['horizontal'] = 0;
-				$settings->input_field_border_group['shadow']['vertical'] = 0;
-				$settings->input_field_border_group['shadow']['blur'] = 0;
-				$settings->input_field_border_group['shadow']['spread'] = 0;
-			}
-
-			unset( $settings->input_field_box_shadow );
-		}
-
-		// Handle old Button border and radius fields.
-		$settings = PP_Module_Fields::handle_border_field(
-			$settings,
-			array(
-				'button_border_width'  => array(
-					'type' => 'width',
-				),
-				'button_border_color'  => array(
-					'type' => 'color',
-				),
-				'button_border_radius' => array(
-					'type' => 'radius',
-				),
-			),
-			'button_border_group'
-		);
-
-		// Handle Form old padding field.
-		$settings = PP_Module_Fields::handle_multitext_field( $settings, 'form_padding', 'padding', 'form_padding' );
-
-		// Handle title's old typography fields.
-		$settings = PP_Module_Fields::handle_typography_field(
-			$settings,
-			array(
-				'title_font_family' => array(
-					'type' => 'font',
-				),
-				'title_font_size'   => array(
-					'type' => 'font_size',
-				),
-				'title_alignment'   => array(
-					'type' => 'text_align',
-				),
-			),
-			'title_typography'
-		);
-
-		// Handle Description old typography fields.
-		$settings = PP_Module_Fields::handle_typography_field(
-			$settings,
-			array(
-				'description_font_family' => array(
-					'type' => 'font',
-				),
-				'description_font_size'   => array(
-					'type' => 'font_size',
-				),
-				'description_alignment'   => array(
-					'type' => 'text_align',
-				),
-			),
-			'description_typography'
-		);
-
-		// Handle Section old typography fields.
-		$settings = PP_Module_Fields::handle_typography_field(
-			$settings,
-			array(
-				'section_font'      => array(
-					'type' => 'font',
-				),
-				'section_font_size' => array(
-					'type' => 'font_size',
-				),
-			),
-			'section_typography'
-		);
-
-		if ( isset( $settings->label_font_family ) ) {
-			$settings->label_font_family_old = $settings->label_font_family;
-		}
-
-		// Handle Label old typography fields.
-		$settings = PP_Module_Fields::handle_typography_field(
-			$settings,
-			array(
-				'label_font_family' => array(
-					'type' => 'font',
-				),
-				'label_font_size'   => array(
-					'type' => 'font_size',
-				),
-			),
-			'label_typography'
-		);
-
-		// Handle Input description old typography fields.
-		$settings = PP_Module_Fields::handle_typography_field(
-			$settings,
-			array(
-				'label_font_family_old' => array(
-					'type' => 'font',
-				),
-				'input_desc_font_size' => array(
-					'type' => 'font_size',
-				),
-				'input_desc_line_height'   => array(
-					'type' => 'line_height',
-					'unit' => isset( $settings->input_desc_line_height_unit ) ? $settings->input_desc_line_height_unit : '',
-				),
-			),
-			'input_desc_typography'
-		);
-
-		// Handle Input old typography fields.
-		$settings = PP_Module_Fields::handle_typography_field(
-			$settings,
-			array(
-				'input_font_family' => array(
-					'type' => 'font',
-				),
-				'input_font_size' => array(
-					'type' => 'font_size',
-				),
-				'input_field_text_alignment' => array(
-					'type' => 'text_align'
-				),
-			),
-			'input_typography'
-		);
-
-		// Handle Button old typography fields.
-		$settings = PP_Module_Fields::handle_typography_field(
-			$settings,
-			array(
-				'button_font_family' => array(
-					'type' => 'font',
-				),
-				'button_font_size'   => array(
-					'type' => 'font_size',
-				),
-			),
-			'button_typography'
-		);
-
-		// Handle Form Background opacity  color field.
-		if ( isset( $settings->form_background_opacity ) ) {
-			$opacity    = $settings->form_background_opacity >= 0 ? $settings->form_background_opacity : 1;
-			$color_form = $settings->form_bg_color;
-
-			if ( ! empty( $color_form ) ) {
-				$color_form              = BBFS_Helpers::hex_to_rgba( BBFS_Helpers::get_color_value( $color_form ), $opacity );
-				$settings->form_bg_color = $color_form;
-			}
-
-			unset( $settings->form_background_opacity );
-		}
-
-		// Handle Input Background opacity  color field.
-		if ( isset( $settings->input_field_background_opacity ) ) {
-			$opacity     = $settings->input_field_background_opacity >= 0 ? $settings->input_field_background_opacity : 1;
-			$color_input = $settings->input_field_bg_color;
-
-			if ( ! empty( $color_input ) ) {
-				$color_input                    = BBFS_Helpers::hex_to_rgba( BBFS_Helpers::get_color_value( $color_input ), $opacity );
-				$settings->input_field_bg_color = $color_input;
-			}
-
-			unset( $settings->input_field_background_opacity );
-		}
-
-		// Handle Button Background opacity  color field.
-		if ( isset( $settings->button_background_opacity ) ) {
-			$opacity      = $settings->button_background_opacity >= 0 ? $settings->button_background_opacity : 1;
-			$color_button = $settings->button_bg_color;
-
-			if ( ! empty( $color_button ) ) {
-				$color_button              = BBFS_Helpers::hex_to_rgba( BBFS_Helpers::get_color_value( $color_button ), $opacity );
-				$settings->button_bg_color = $color_button;
-			}
-
-			unset( $settings->button_background_opacity );
-		}
-
-		return $settings;
-	}
 }
 
 
@@ -357,7 +84,7 @@ FLBuilder::register_module(
 					'title'  => __( 'Settings', 'bb-form-styler' ),
 					'fields' => array(
 						'form_custom_title_desc' => array(
-							'type'    => 'pp-switch',
+							'type'    => 'button-group',
 							'label'   => __( 'Custom Title & Description', 'bb-form-styler' ),
 							'default' => 'no',
 							'options' => array(
@@ -374,7 +101,7 @@ FLBuilder::register_module(
 							),
 						),
 						'title_field'            => array(
-							'type'    => 'pp-switch',
+							'type'    => 'button-group',
 							'label'   => __( 'Title', 'bb-form-styler' ),
 							'default' => 'true',
 							'options' => array(
@@ -390,11 +117,11 @@ FLBuilder::register_module(
 							'connections' => array( 'string' ),
 							'preview'     => array(
 								'type'     => 'text',
-								'selector' => '.form-title',
+								'selector' => '.bbfs-form-title',
 							),
 						),
 						'description_field'      => array(
-							'type'    => 'pp-switch',
+							'type'    => 'button-group',
 							'label'   => __( 'Description', 'bb-form-styler' ),
 							'default' => 'true',
 							'options' => array(
@@ -411,11 +138,11 @@ FLBuilder::register_module(
 							'connections' => array( 'string', 'html' ),
 							'preview'     => array(
 								'type'     => 'text',
-								'selector' => '.form-description',
+								'selector' => '.bbfs-form-description',
 							),
 						),
 						'display_labels'         => array(
-							'type'    => 'pp-switch',
+							'type'    => 'button-group',
 							'label'   => __( 'Labels', 'bb-form-styler' ),
 							'default' => 'block',
 							'options' => array(
@@ -424,7 +151,7 @@ FLBuilder::register_module(
 							),
 						),
 						'form_ajax'              => array(
-							'type'    => 'pp-switch',
+							'type'    => 'button-group',
 							'label'   => __( 'Enable AJAX', 'bb-form-styler' ),
 							'default' => 'yes',
 							'options' => array(
@@ -448,7 +175,7 @@ FLBuilder::register_module(
 					'title'  => __( 'Form Background', 'bb-form-styler' ), // Section Title
 					'fields' => array( // Section Fields
 						'form_bg_type'            => array(
-							'type'    => 'pp-switch',
+							'type'    => 'button-group',
 							'label'   => __( 'Background Type', 'bb-form-styler' ),
 							'default' => 'color',
 							'options' => array(
@@ -489,7 +216,7 @@ FLBuilder::register_module(
 							),
 						),
 						'form_bg_size'            => array(
-							'type'    => 'pp-switch',
+							'type'    => 'button-group',
 							'label'   => __( 'Background Size', 'bb-form-styler' ),
 							'default' => 'cover',
 							'options' => array(
@@ -498,7 +225,7 @@ FLBuilder::register_module(
 							),
 						),
 						'form_bg_repeat'          => array(
-							'type'    => 'pp-switch',
+							'type'    => 'button-group',
 							'label'   => __( 'Background Repeat', 'bb-form-styler' ),
 							'default' => 'no-repeat',
 							'options' => array(
@@ -638,7 +365,7 @@ FLBuilder::register_module(
 					'title'     => '', // Section Title
 					'fields'    => array( // Section Fields
 						'input_field_width'          => array(
-							'type'    => 'pp-switch',
+							'type'    => 'button-group',
 							'label'   => __( 'Full Width', 'bb-form-styler' ),
 							'default' => 'false',
 							'options' => array(
@@ -647,7 +374,7 @@ FLBuilder::register_module(
 							),
 						),
 						'input_field_height'         => array(
-							'type'    => 'pp-switch',
+							'type'    => 'button-group',
 							'label'   => __( 'Height', 'bb-form-styler' ),
 							'default' => 'auto',
 							'options' => array(
@@ -801,7 +528,7 @@ FLBuilder::register_module(
 					'collapsed' => true,
 					'fields'    => array( // Section Fields
 						'gf_input_placeholder_display' => array(
-							'type'    => 'pp-switch',
+							'type'    => 'button-group',
 							'label'   => __( 'Show Placeholder', 'bb-form-styler' ),
 							'default' => 'block',
 							'options' => array(
@@ -833,7 +560,7 @@ FLBuilder::register_module(
 					'collapsed' => true,
 					'fields'    => array(
 						'radio_cb_style'           => array(
-							'type'    => 'pp-switch',
+							'type'    => 'button-group',
 							'label'   => __( 'Enable Custom Style', 'bb-form-styler' ),
 							'default' => 'no',
 							'options' => array(
@@ -928,7 +655,7 @@ FLBuilder::register_module(
 							),
 						),
 						'file_border_style'       => array(
-							'type'    => 'pp-switch',
+							'type'    => 'button-group',
 							'label'   => __( 'Border Style', 'bb-form-styler' ),
 							'default' => 'none',
 							'options' => array(
@@ -1105,7 +832,7 @@ FLBuilder::register_module(
 					'collapsed' => true,
 					'fields'    => array( // Section Fields
 						'button_width'        => array(
-							'type'    => 'pp-switch',
+							'type'    => 'button-group',
 							'label'   => __( 'Full Width', 'bb-form-styler' ),
 							'default' => 'false',
 							'options' => array(
@@ -1194,7 +921,7 @@ FLBuilder::register_module(
 					'title'  => __( 'Errors Style', 'bb-form-styler' ), // Section Title
 					'fields' => array( // Section Fields
 						'validation_error'              => array(
-							'type'    => 'pp-switch',
+							'type'    => 'button-group',
 							'label'   => __( 'Submission Error', 'bb-form-styler' ),
 							'default' => 'block',
 							'options' => array(
@@ -1283,7 +1010,7 @@ FLBuilder::register_module(
 							),
 						),
 						'validation_message'            => array(
-							'type'    => 'pp-switch',
+							'type'    => 'button-group',
 							'label'   => __( 'Error Field Message', 'bb-form-styler' ),
 							'default' => 'block',
 							'options' => array(
@@ -1388,7 +1115,7 @@ FLBuilder::register_module(
 							'responsive' => true,
 							'preview'    => array(
 								'type'     => 'css',
-								'selector' => '.gform_title, .form-title',
+								'selector' => '.gform_title, .bbfs-form-title',
 							),
 						),
 						'title_color'      => array(
@@ -1399,7 +1126,7 @@ FLBuilder::register_module(
 							'connections' => array( 'color' ),
 							'preview'     => array(
 								'type'     => 'css',
-								'selector' => '.gform_title, .form-title',
+								'selector' => '.gform_title, .bbfs-form-title',
 								'property' => 'color',
 							),
 						),
@@ -1415,7 +1142,7 @@ FLBuilder::register_module(
 							'responsive' => true,
 							'preview'    => array(
 								'type'     => 'css',
-								'selector' => '.gform_description, .form-description',
+								'selector' => '.gform_description, .bbfs-form-description',
 							),
 						),
 						'description_color'      => array(
@@ -1426,7 +1153,7 @@ FLBuilder::register_module(
 							'connections' => array( 'color' ),
 							'preview'     => array(
 								'type'     => 'css',
-								'selector' => '.gform_description, .form-description',
+								'selector' => '.gform_description, .bbfs-form-description',
 								'property' => 'color',
 							),
 						),
